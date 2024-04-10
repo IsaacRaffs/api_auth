@@ -1,43 +1,47 @@
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.http import Http404
+from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import UserModel
 from .serializers import UserSerializer
 
-class ListCreateUser(APIView):
-    def get(self, request):
-        users = UserModel.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=200)
-    
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=200)
-    
-class DetailUpdateDeleteUser(APIView):
-    def get_user(self, pk):
-        try:
-            return UserModel.objects.get(pk=pk)
-        except UserModel.DoesNotExist:
-            return Http404
-        
-    def get(self, request, pk):
-        users = self.get_user(pk)
-        serializer = UserSerializer(users)
-        return Response(serializer.data, status=200)
-    
-    def put(self, request, pk):
-        users = self.get_user(pk)
-        serializer = UserSerializer(users, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=200)
-    
-    def delete(self, request, pk):
-        alvo = self.get_user(pk)
-        alvo.delete()
-        return Response(status=204)
 
+class ListCreateUser(ListCreateAPIView):
+    queryset = UserModel.objects.all()
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        usuario = self.request.user
+        return UserModel.objects.filter(usuario=usuario)
+
+    def post(self, request):
+        request.data['usuario'] = request.user.pk
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class DetailUpdateDeleteUser(RetrieveUpdateDestroyAPIView):
+    queryset = UserModel.objects.all()
+    serializer_class = UserSerializer
+
+    def put(self, request, pk, *args, **kwargs):
+        user = request.user
+        users = UserModel.objects.get(pk=pk)
+
+        if users.usuario != user:
+            return Response(
+                {'detail': 'Você só pode editar seu próprio perfil'},
+                status=400
+            )
+
+        return self.update(request, request.user)
+
+        def update(self, request, *args, **kwargs):
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)

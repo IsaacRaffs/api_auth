@@ -13,7 +13,8 @@ function Home() {
             'Authorization': `Token ${token}`
           }
         });
-        setUserData(response.data); 
+        setUserData(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error(error);
       }
@@ -28,6 +29,7 @@ function Home() {
       {userData && userData.map((user) => (
         <div key={user.id}> 
           <p>ID: {user.id}</p>
+          <p>Email: {user.email}</p>
           <p>Name: {user.name}</p>
           <p>Age: {user.age}</p>
         </div>

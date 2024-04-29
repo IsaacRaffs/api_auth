@@ -27,18 +27,9 @@ class DetailUpdateDeleteUser(RetrieveUpdateDestroyAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
-
-    def get(self, request, pk, *args, **kwargs):
-        user = request.user
-        users = UserModel.objects.get(pk=pk)
-
-        if users.usuario != user:
-            return Response(
-                {'detail': 'Você só pode acessar  o seu próprio perfil'},
-                status=400
-            )
-
-        return Response(request.user)
+    def get_queryset(self):
+        usuario = self.request.user
+        return UserModel.objects.filter(usuario=usuario)    
     
     def put(self, request, pk, *args, **kwargs):
         user = request.user

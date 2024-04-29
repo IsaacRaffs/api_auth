@@ -20,9 +20,9 @@ function Signin() {
       const response = await axios.post('http://127.0.0.1:8000/auth/signin', formData);
       const { token } = response.data;
       localStorage.setItem('token', token);
-      navigate('/home'); // Redireciona automaticamente para a página Home após o Signin
+      navigate('/home'); 
     } catch (error) {
-      console.error(error); // Handle error
+      console.error(error);
     }
   };
 

@@ -4,11 +4,17 @@
     justify-content: space-between;
     padding: 1rem 2rem;
     background-color: #0f0;
+    width: 100%;
 }
 
 .navbar-red{
-    height: 5px;
+    height: 0.3rem;
     background-color: red;
+    width: 100%;
+}
+
+.navbar{
+    padding: 0;
 }
 
 .navbar h2{

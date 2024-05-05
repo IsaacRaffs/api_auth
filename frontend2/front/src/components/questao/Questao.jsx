@@ -6,7 +6,8 @@ const Questao = ({data}) => {
     <div>
         <ol>
             {data.map(questao => (
-            <><p key={questao.id}>({questao.ano}) {questao.materia} - {questao.assunto}</p><li className="questao">
+            <><p>({questao.ano}) {questao.materia} - {questao.assunto}</p>
+            <li className="questao" key={questao.id}>
                     <p>{questao.contexto}</p>
                     <p>{questao.pergunta}</p>
                     <ol type='a'>
